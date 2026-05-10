@@ -1,10 +1,10 @@
-name: Tunnel over TLS (443)
+name: Stealth Tunnel via TLS
 
 on:
   workflow_dispatch:
 
 jobs:
-  tunnel:
+  start-tunnel:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -14,18 +14,21 @@ jobs:
           gunzip chisel.gz
           chmod +x chisel
 
-      - name: Generate self-signed certificate
+      - name: Generate fake TLS certificate for github.com
         run: |
+          # یک گواهی جعلی برای دامنه‌ای که روی لیست سفیده (github.com) می‌سازیم
           openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 1 -nodes -subj "/CN=github.com"
 
       - name: Start Chisel server with TLS on port 443
         run: |
+          # اجرای سرور روی پورت ۴۴۳ با گواهی جعلی
           sudo ./chisel server --port 443 --reverse --auth "u:p" --tls-key key.pem --tls-cert cert.pem &
           sleep 3
           IP=$(curl -s ifconfig.me)
           echo "======================================="
-          echo "🌍 RUNNER IP: $IP"
-          echo "🔗 Run this on your laptop (PowerShell):"
+          echo "🌍 IP: $IP"
+          echo "🔑 Password: u:p (or check TUNNEL_PASS)"
+          echo "🔗 Run this on YOUR laptop (PowerShell):"
           echo "   .\chisel.exe client --auth u:p --tls-skip-verify https://$IP R:socks"
           echo "======================================="
           sleep 3600
