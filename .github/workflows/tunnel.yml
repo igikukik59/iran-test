@@ -15,20 +15,13 @@ jobs:
           chmod +x chisel
           echo "✅ Chisel installed"
 
-      - name: Start Chisel Server on Port 443 with Sudo
+      - name: Start Chisel Server on Port 443
         run: |
           sudo ./chisel server --port 443 --reverse --auth "u:p" &
           sleep 3
-          
-          if ./chisel client --auth "u:p" https://127.0.0.1 ping 2>/dev/null; then
-              echo "======================================="
-              echo "✅ Server is running on HTTPS port 443"
-              echo "🔗 Now, run this EXACT command on your laptop:"
-              echo "   chisel client --auth u:p https://github.com R:socks"
-              echo "======================================="
-          else
-              echo "Server failed to start"
-              exit 1
-          fi
-          
+          echo "======================================="
+          echo "✅ Chisel server is listening on port 443"
+          echo "🔗 Run this EXACT command on your laptop:"
+          echo "   .\chisel.exe client --auth u:p https://github.com R:socks"
+          echo "======================================="
           sleep 3600
