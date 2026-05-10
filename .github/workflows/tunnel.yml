@@ -1,37 +1,25 @@
-name: Tunnel + Chisel Downloader
+name: Simple Tunnel
 
 on:
   workflow_dispatch:
 
 jobs:
-  tunnel:
+  start-server:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Download chisel for Windows (runner can access internet)
+      - name: Install Chisel on runner (runners have free internet)
         run: |
-          wget -O chisel.gz "https://github.com/jpillora/chisel/releases/download/v1.10.1/chisel_1.10.1_windows_amd64.gz"
-          gunzip chisel.gz
-          mv chisel chisel.exe
-          echo "✅ chisel.exe ready on runner"
-
-      - name: Convert to BASE64 and print
-        run: |
-          echo "=============================================="
-          echo "📦 COPY EVERYTHING BETWEEN THE LINES BELOW"
-          echo "=============================================="
-          echo "-----BEGIN CHISEL BASE64-----"
-          base64 chisel.exe
-          echo "-----END CHISEL BASE64-----"
-          echo "=============================================="
-          echo "🌍 IP: $(curl -s ifconfig.me)"
-          echo "💻 Command: chisel client --auth u:p http://$(curl -s ifconfig.me):9090 R:socks"
-          echo "=============================================="
-          sleep 3600
-      - name: Start Chisel Server
-        run: |
-          chmod +x chisel.exe 2>/dev/null
-          # install linux chisel for server
           curl -fsSL https://raw.githubusercontent.com/jpillora/chisel/master/install.sh | bash
+
+      - name: Start Chisel Server and Show IP
+        run: |
           chisel server --port 9090 --reverse --auth "u:p" &
+          sleep 3
+          IP=$(curl -s ifconfig.me)
+          echo "======================================="
+          echo "🌍 Runner IP: $IP"
+          echo "🔗 On your laptop run:"
+          echo ".\chisel.exe client --auth u:p http://$IP:9090 R:socks"
+          echo "======================================="
           sleep 3600
