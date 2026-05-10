@@ -1,0 +1,31 @@
+name: Free Internet Tunnel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  start-tunnel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Download Chisel (raw is open)
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/jpillora/chisel/master/install.sh" | bash
+          echo "✅ Chisel installed"
+
+      - name: Start Chisel Server
+        run: |
+          chisel server --port 9090 --reverse --auth "u:p" &
+          sleep 2
+          echo "Server started"
+
+      - name: Show Runner IP and Connection Command
+        run: |
+          IP=$(curl -s ifconfig.me)
+          echo "====================================="
+          echo "🌍 IP ADDRESS: $IP"
+          echo ""
+          echo "🔗 Run this command on YOUR laptop:"
+          echo "chisel client --auth u:p http://$IP:9090 R:socks"
+          echo "====================================="
+          sleep 3600
